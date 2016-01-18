@@ -7,6 +7,8 @@ iisnode.yml
 # Icon must ends with two \r.
 Icon
 
+# Secrets
+_config.js
 
 # Thumbnails
 ._*
@@ -16,6 +18,7 @@ Icon
 .Trashes
 node_modules/
 db/
+
 #Holds bower installed files
 bower_components/
 server/secrets/
