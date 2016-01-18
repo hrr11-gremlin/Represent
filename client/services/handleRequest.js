@@ -72,7 +72,10 @@ angular.module('HandleRequests', [])
   factory.getRepsByUserLoc = function () {
     return get(freegeoip.host)
 
-    .then( function (response) {
+    .then( function sunlightLookup (response) {
+      // Because API keys are fetched asynchronously, we must make sure we have them.
+      if (!sunlight.key) return setTimeout(sunlightLookup.bind(this, response), 1000);
+      
       var lat = response.data.latitude;
       var lon = response.data.longitude;
       return get(sunlight.host + 'locate?latitude=' + lat + '&longitude=' + lon + '&apikey=' + sunlight.key)
