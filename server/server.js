@@ -15,6 +15,7 @@ var session = require('express-session');
 var routes = require('./routes/routes');
 var auth = require('./routes/authRoutes');
 
+var SESSION_SECRET = require('../_config.js').SESSION_SECRET;
 
 var app = express();
 var port = process.env.PORT || 4556;
@@ -27,7 +28,7 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(bodyParser());
 
-app.use(session({ secret: 'nyan cat' })); // session secret
+app.use(session({ secret: SESSION_SECRET })); // session secret
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 

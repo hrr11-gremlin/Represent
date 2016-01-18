@@ -1,17 +1,20 @@
 angular.module('HandleRequests', [])
 
 .factory('SendRequest', ['$http', '$rootScope', '$state', function($http, $rootScope, $state) {
-
   // Objects for holding API routes and keys.
   var nytimes = {
-    host1: '//api.nytimes.com/svc/politics/v3/us/legislative/congress/',
-    host2: 'http://api.nytimes.com/svc/search/v2/articlesearch.json?',
-    key1: 'dab50f4c71783810c9a7c1f132ef3136:5:73959417',
-    key2: '9e933c5a73a0b893d8cfa826ef9d0a8b:7:74055917'
+    reps: {
+      host: '//api.nytimes.com/svc/politics/v3/us/legislative/congress/',
+      key: '' // All API keys will be fetched from the server.
+    },
+    news: {
+      host: 'http://api.nytimes.com/svc/search/v2/articlesearch.json?',
+      key: ''
+    }
   };
   var sunlight = {
     host: 'https://congress.api.sunlightfoundation.com/legislators/',
-    key:'d8e5e25b4d66407a93160dc96026f987'
+    key:''
   };
   var freegeoip = {
     host: 'https://freegeoip.net/json/'
@@ -33,6 +36,13 @@ angular.module('HandleRequests', [])
       data: data
     });
   };
+
+  // Fetch API keys from the server.
+  get('/auth/keys').then(function (response) {
+    nytimes.reps.key = response.data.NYTIMES_REPS;
+    nytimes.news.key = response.data.NYTIMES_NEWS;
+    sunlight.key = response.data.SUNLIGHT;
+  });
 
   // Export object, with basic get and post methods.
   var factory = {};
@@ -62,7 +72,10 @@ angular.module('HandleRequests', [])
   factory.getRepsByUserLoc = function () {
     return get(freegeoip.host)
 
-    .then( function (response) {
+    .then( function sunlightLookup (response) {
+      // Because API keys are fetched asynchronously, we must make sure we have them.
+      if (!sunlight.key) return setTimeout(sunlightLookup.bind(this, response), 1000);
+      
       var lat = response.data.latitude;
       var lon = response.data.longitude;
       return get(sunlight.host + 'locate?latitude=' + lat + '&longitude=' + lon + '&apikey=' + sunlight.key)
@@ -81,7 +94,7 @@ angular.module('HandleRequests', [])
   };
 
   factory.newsFeed = function (name) {
-    return get(nytimes.host2 + 'q=' + name + '&api-key=' + nytimes.key2);
+    return get(nytimes.news.host + 'q=' + name + '&api-key=' + nytimes.news.key);
   };
 
 

@@ -7,10 +7,17 @@ var router = express.Router();
 var passport = require('passport');
 var User = require('../models/userModel');
 
+var KEYS = require('../../_config.js').KEYS;
+
 
 router.get('/', function(req, res){
   res.send('You reached the AUTH route!');
 });
+
+router.get('/keys', function (req, res) {
+  res.send(KEYS);
+});
+
 
 router.post('/login',
   passport.authenticate('local'),
