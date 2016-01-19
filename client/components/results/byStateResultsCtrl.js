@@ -78,7 +78,6 @@ angular.module('ByStateResults', ['HandleRequests'])
             reps.push(rep);
         }
     });
-    console.log('REPS', reps);
     DataCache.zipSearchReps = reps;
     $state.go('byDistrictResults');
   };

@@ -20,7 +20,6 @@ angular.module('ByDistrictResults', ['HandleRequests', 'dataCache'])
             stories.forEach(function(story, index) {
               if (index <= 3) {
                 story.congressPerson = rep.last_name;
-                console.log(story);
                 $scope.newsFeed.push(story);
               }
             });
