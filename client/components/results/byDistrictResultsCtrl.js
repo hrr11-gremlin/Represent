@@ -68,7 +68,7 @@ angular.module('ByDistrictResults', ['HandleRequests', 'dataCache'])
       };
 
       $scope.drawPresent = function(index, missed) {
-        if (missed && !presentMade[index]) {
+        if (missed !== undefined && !presentMade[index]) {
           presentMade[index] = true;
           drawCircle('#present' + index, (100 - missed) / 100, 'green', 'attended');
         }
