@@ -10,7 +10,7 @@ It's now easier than ever to keep tabs on your repesentatives and make sure the 
 
 * __Product Owner__: Chris Clark
 * __Scrum Master__: Matt Hand
-* __Front End Developer__: Jerome "Auggie" Hudak
+* __Front End Developer__: Auggie Hudak
 * __Front End Developer__: Kayla Dowling
 * __Full Stack Developer__: Zac Delventhal
 
