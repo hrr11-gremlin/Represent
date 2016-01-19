@@ -30,7 +30,6 @@ angular.module('Results', [])
   
   //Circular animation
   var nonMissedVotes = (100 - $scope.memberInfo.missedVotesPerc)/100;
-  console.log($scope.memberInfo.votesWithParty);
   var circle = new ProgressBar.Circle('#voteProgress', {
       color: '#FCB03C',
       strokeWidth: 6,
@@ -47,12 +46,10 @@ angular.module('Results', [])
       },
       step: function(state, bar) {
         bar.setText((bar.value() * '100').toFixed(0) + '%');
-        // console.log("ORIGINAL " + (bar.value() * '100'));
       }
   });
 
   circle.animate(.5, function() {
-      console.log(nonMissedVotes);
       circle.animate(nonMissedVotes);
   });
 var withParty = ( $scope.memberInfo.votesWithParty / 100);
@@ -77,13 +74,11 @@ var withParty = ( $scope.memberInfo.votesWithParty / 100);
   });
 
   circle2.animate(.5, function() {
-      console.log(withParty);
       circle2.animate(withParty);
   });
 
   //Pagination
   $scope.changePage = function(page) {
-    console.log(page);
     $scope.prevMax = $scope.pages.max;
     $scope.pages.max = page * 10;
     $scope.pages.min =  (page * 10) - 10 + 1;
@@ -112,7 +107,6 @@ var withParty = ( $scope.memberInfo.votesWithParty / 100);
       resultsFactory.memberImageUrl = "https://theunitedstates.io/images/congress/225x275/" + data.member.id + ".jpg";
       resultsFactory.memberFacebookUrl = "http://www.facebook.com/" + data.member.facebook;
       resultsFactory.memberTwitterUrl = "http://www.twitter.com/" + data.member.twitter;
-      console.log(data.member);
       data = JSON.parse(localStorage.getItem('currMemberVotes'));
       $rootScope.currentMember = data;
     }
