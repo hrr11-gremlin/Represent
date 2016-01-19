@@ -15,7 +15,6 @@ angular.module('Search', [])
     if (!DataCache.repNamesByLoc.length) {
       SendRequest.getRepsByUserLoc().then(function(people) {
         var names = people.reduce(function(placeholder, person) {
-          console.log(person);
           var fullName = person.first_name + ' ' + person.last_name;
           return placeholder.concat(fullName);
         }, []);
