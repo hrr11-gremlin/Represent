@@ -1,107 +1,110 @@
-angular.module('ByDistrictResults', ['HandleRequests', 'dataCache'])
-  .controller('ByDistrictResultsController', ['$scope', 'SendRequest', '$rootScope', 'DataCache', 'searchFactory',
-    function($scope, SendRequest, $rootScope, DataCache, searchFactory) {
-      $scope.getVotes = searchFactory.getMemberAndVotes;
-      $scope.sunlightData = DataCache.zipSearchReps;
-      $scope.newsFeed = [];
-      $scope.state = $scope.sunlightData[0].state_name;
-      $scope.fullname = $scope.sunlightData.first_name + ' ' + $scope.sunlightData.last_name;
+(function() {
+  angular.module('ByDistrictResults', ['HandleRequests', 'dataCache'])
+    .controller('ByDistrictResultsController', ['$scope', 'SendRequest', '$rootScope', 'DataCache', 'searchFactory',
+      function($scope, SendRequest, $rootScope, DataCache, searchFactory) {
+        $scope.getVotes = searchFactory.getMemberAndVotes;
+        $scope.sunlightData = DataCache.zipSearchReps;
+        $scope.newsFeed = [];
+        $scope.state = $scope.sunlightData[0].state_name;
+        $scope.fullname = $scope.sunlightData.first_name + ' ' + $scope.sunlightData.last_name;
 
-      $scope.sunlightData.forEach(function (rep) {
-        rep.imageUrl = 'https://theunitedstates.io/images/congress/225x275/' + rep.bioguide_id + '.jpg';
-        SendRequest.get('api/repById/' + rep.bioguide_id)
-        .then (function (response) {
-          for (var key in response.data) {
-            rep[key] = response.data[key];
-          }
-        });
-        SendRequest.newsFeed(rep.first_name.toLowerCase() + '+' + rep.last_name.toLowerCase())
-          .then(function(stories) {
-            stories.forEach(function(story, index) {
-              if (index <= 3) {
-                story.congressPerson = rep.last_name;
-                $scope.newsFeed.push(story);
-              }
-            });
-          });
-      });
-
-      // Angular likes to call drawParty and drawPresent six times each for some reason.
-      // Tracking whether or not it's been called yet can work around the issue.
-      var presentMade = [];
-      var partyMade = [];
-
-      var drawCircle = function(id, limit, color, label) {
-        var circle = new ProgressBar.Circle(id, {
-          color: color,
-          strokeWidth: 6,
-          trailWidth: 1,
-          duration: 800,
-          svgStyle: {
-            display: 'inline',
-            width: '20%'
-          },
-          text: {
-            style: {
-              position: 'absolute',
-              left: '55%',
-              top: '-325%',
-              padding: 10,
-              margin: 10,
-              size: '0.2em'
-              // You can specify styles which will be browser prefixed
-              // transform: {
-              //   prefix: true,
-              //   value: 'translate(0%, 0%)'
-              // }
+        $scope.sunlightData.forEach(function (rep) {
+          rep.imageUrl = 'https://theunitedstates.io/images/congress/225x275/' + rep.bioguide_id + '.jpg';
+          SendRequest.get('api/repById/' + rep.bioguide_id)
+          .then (function (response) {
+            for (var key in response.data) {
+              rep[key] = response.data[key];
             }
-          },
-          step: function(state, bar) {
-            bar.setText((bar.value() * '100').toFixed(0) + '% votes ' + label);
+          });
+          SendRequest.newsFeed(rep.first_name.toLowerCase() + '+' + rep.last_name.toLowerCase())
+            .then(function(stories) {
+              stories.forEach(function(story, index) {
+                if (index <= 3) {
+                  story.congressPerson = rep.last_name;
+                  $scope.newsFeed.push(story);
+                }
+              });
+            });
+        });
+
+        // Angular likes to call drawParty and drawPresent six times each for some reason.
+        // Tracking whether or not it's been called yet can work around the issue.
+        var presentMade = [];
+        var partyMade = [];
+
+        var drawCircle = function(id, limit, color, label) {
+          var circle = new ProgressBar.Circle(id, {
+            color: color,
+            strokeWidth: 6,
+            trailWidth: 1,
+            duration: 800,
+            svgStyle: {
+              display: 'inline',
+              width: '20%'
+            },
+            text: {
+              style: {
+                position: 'absolute',
+                left: '55%',
+                top: '-325%',
+                padding: 10,
+                margin: 10,
+                size: '0.2em'
+                // You can specify styles which will be browser prefixed
+                // transform: {
+                //   prefix: true,
+                //   value: 'translate(0%, 0%)'
+                // }
+              }
+            },
+            step: function(state, bar) {
+              bar.setText((bar.value() * '100').toFixed(0) + '% votes ' + label);
+            }
+          });
+
+          circle.animate(.5, function() {
+            circle.animate(limit);
+          });
+        };
+
+        $scope.drawPresent = function(index, missed) {
+          if (missed !== undefined && !presentMade[index]) {
+            presentMade[index] = true;
+            drawCircle('#present' + index, (100 - missed) / 100, 'green', 'attended');
           }
-        });
+        };
 
-        circle.animate(.5, function() {
-          circle.animate(limit);
-        });
-      };
+        $scope.drawParty = function(index, partyVote, affiliation) {
+          if (partyVote && !partyMade[index]) {
+            partyMade[index] = true;
+            if (affiliation === 'R') affiliation = 'red';
+            else if (affiliation === 'D') affiliation = 'blue';
+            else affiliation = 'green';
+            drawCircle('#party' + index, partyVote / 100, affiliation, 'with party');
+          }
+        };
 
-      $scope.drawPresent = function(index, missed) {
-        if (missed !== undefined && !presentMade[index]) {
-          presentMade[index] = true;
-          drawCircle('#present' + index, (100 - missed) / 100, 'green', 'attended');
+        $scope.party = {
+          'R': 'Republican',
+          'D': 'Democrat'
         }
-      };
 
-      $scope.drawParty = function(index, partyVote, affiliation) {
-        if (partyVote && !partyMade[index]) {
-          partyMade[index] = true;
-          if (affiliation === 'R') affiliation = 'red';
-          else if (affiliation === 'D') affiliation = 'blue';
-          else affiliation = 'green';
-          drawCircle('#party' + index, partyVote / 100, affiliation, 'with party');
-        }
-      };
+        $scope.getDistrict = function() {
+          var result;
+          $scope.sunlightData.forEach(function(data) {
+            if (data.district) {
+              result = data.district;
+            }
+          });
+          return result;
+        };
 
-      $scope.party = {
-        'R': 'Republican',
-        'D': 'Democrat'
+        $scope.district = $scope.getDistrict();
+
       }
+    ]);
 
-      $scope.getDistrict = function() {
-        var result;
-        $scope.sunlightData.forEach(function(data) {
-          if (data.district) {
-            result = data.district;
-          }
-        });
-        return result;
-      };
-
-      $scope.district = $scope.getDistrict();
-
-    }
-  ]);
+})();
 
 // EXAMPLE SUNLIGHT REP
 // $$hashKey: "object:95"
